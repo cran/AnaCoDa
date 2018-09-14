@@ -75,7 +75,7 @@ PAParameter& PAParameter::operator=(const PAParameter& rhs)
 */
 PAParameter::~PAParameter()
 {
-	//dtor 
+	//dtor
 	//TODO: Need to call Parameter's deconstructor?
 }
 
@@ -115,7 +115,7 @@ void PAParameter::initPAParameterSet()
 	}
 	for (unsigned i = 0; i < lambdaPrimeCategories; i++)
 	{
-		std::vector <double> tmp(numParam,1.0);
+		std::vector <double> tmp(numParam,0.1);
 		currentCodonSpecificParameter[lmPri][i] = tmp;
 		proposedCodonSpecificParameter[lmPri][i] = tmp;
 		lambdaValues[i] = tmp; //Maybe we don't initialize this one? or we do it differently?
@@ -441,16 +441,15 @@ void PAParameter::initMutationSelectionCategories(std::vector<std::string> files
 // ---------- Trace Functions -----------//
 // --------------------------------------//
 
-
 /* updateCodonSpecificParameterTrace (NOT EXPOSED)
  * Arguments: sample index to update, codon given as a string
  * Takes a sample as an index into the trace and will eventually convert the codon into
  * an index into the trace as well.
-*/
+ */
 void PAParameter::updateCodonSpecificParameterTrace(unsigned sample, std::string codon)
 {
-	traces.updateCodonSpecificParameterTraceForCodon(sample, codon, currentCodonSpecificParameter[alp], alp);
-	traces.updateCodonSpecificParameterTraceForCodon(sample, codon, currentCodonSpecificParameter[lmPri], lmPri);
+    traces.updateCodonSpecificParameterTraceForCodon(sample, codon, currentCodonSpecificParameter[alp], alp);
+    traces.updateCodonSpecificParameterTraceForCodon(sample, codon, currentCodonSpecificParameter[lmPri], lmPri);
 }
 
 
@@ -493,9 +492,15 @@ void PAParameter::proposeCodonSpecificParameter()
 	{
 		for (unsigned j = 0; j < numLambdaPrime; j++)
 		{
-			proposedCodonSpecificParameter[lmPri][i][j] = std::exp( randNorm( std::log(currentCodonSpecificParameter[lmPri][i][j]) , std_csp[j]) );
+			double l = proposedCodonSpecificParameter[lmPri][i][j] = std::exp( randNorm( std::log(currentCodonSpecificParameter[lmPri][i][j]) , std_csp[j]) );
 		}
-	}
+	}/*
+    if (std::isnan(l) || std::isnan(a)){
+        div_flag = TRUE;
+        bool isAlpha = isnan(a);
+        my_print("First divergence is alpha %\n The Current state is:
+        \n", isAlpha);
+    }*/
 }
 
 
@@ -522,9 +527,6 @@ void PAParameter::updateCodonSpecificParameter(std::string grouping)
 }
 
 
-
-
-
 // ----------------------------------------------//
 // ---------- Adaptive Width Functions ----------//
 // ----------------------------------------------//
@@ -539,7 +541,7 @@ void PAParameter::updateCodonSpecificParameter(std::string grouping)
 void PAParameter::adaptCodonSpecificParameterProposalWidth(unsigned adaptationWidth, unsigned lastIteration, bool adapt)
 {
 	my_print("acceptance rate for codon:\n");
-    adapt = false;
+    adapt = true;
 	for (unsigned i = 0; i < groupList.size(); i++)
 	{
 		my_print("%\t", groupList[i]);
@@ -788,4 +790,3 @@ double PAParameter::getParameterForCategoryR(unsigned mixtureElement, unsigned p
 }
 
 #endif
-

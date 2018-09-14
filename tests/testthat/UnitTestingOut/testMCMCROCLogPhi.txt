@@ -1,20 +1,20 @@
 Allowing divergence from initial conditions for 0 iterations.
 
 maxGrouping: 22
-entering MCMC loop
+Starting MCMC
 	Estimate Codon Specific Parameters? TRUE 
 	Estimate Hyper Parameters? TRUE 
 	Estimate Synthesis rates? TRUE 
 	Starting MCMC with 100 iterations
 	Adapting will stop after 100 steps
-Status at iteration (sample): 100 (10)
-	 current logLikelihood: -827733 
-Current stdDevSynthesisRate estimate for selection category 0: 0.598378
-Current stdDevSynthesisRate estimate for selection category 1: 1.10799
+Status at thinned sample (iteration): 10 (100)
+	 current logPosterior: -827733 
+	 Current stdDevSynthesisRate estimate for selection category 0: 0.688724
+	 Current stdDevSynthesisRate estimate for selection category 1: 1.14991
 	 current stdDevSynthesisRate proposal width: 0.1
-	 current noiseOffset estimates: -0.114238
+	 current noiseOffset estimates: -0.12105
 	 current noiseOffset proposal widths: 0.1
-	 current observedSynthesisNoise estimates: 1.01369
+	 current observedSynthesisNoise estimates: 1.00599
 	 current Mixture element probability for element 0: 0.490531
 	 current Mixture element probability for element 1: 0.509469
 Acceptance rate for Codon Specific Parameter
@@ -40,8 +40,6 @@ Acceptance rate for Codon Specific Parameter
 	Z:	0.29
 
 acceptance rate for synthesis rate:
-	 acceptance rate to low: 0
-	 acceptance rate to high: 1996
-Writing File
-Done writing
+	 acceptance rate too low: 0
+	 acceptance rate too high: 1996
 leaving MCMC loop

@@ -40,7 +40,8 @@ MCMCAlgorithm::MCMCAlgorithm() : samples(1000), thinning(1), adaptiveWidth(100 *
 {
 	posteriorTrace.resize(samples + 1); // +1 for storing initial evaluation
 	likelihoodTrace.resize(samples + 1);
-	writeRestartFile = false;
+
+    writeRestartFile = false;
 	multipleFiles = false;
 	fileWriteInterval = 1u;
 	lastConvergenceTest = 0u;
@@ -205,6 +206,7 @@ double MCMCAlgorithm::acceptRejectSynthesisRateLevelForAllGenes(Genome& genome, 
                 my_print("exp(curr logLik - maxVal): %\n", std::exp(unscaledLogProb_curr_singleMixture[k]));
                 my_print("Max Val. %\n", maxValue);
                 my_print("\n\n\n");
+		break;
             }
             unscaledLogProb_curr_singleMixture[k] += maxValue;
 		}
@@ -335,11 +337,18 @@ void MCMCAlgorithm::acceptRejectCodonSpecificParameter(Genome& genome, Model& mo
 		// calculate likelihood ratio for every Category for current AA
 		model.calculateLogLikelihoodRatioPerGroupingPerCategory(grouping, genome, acceptanceRatioForAllMixtures);
 		//logPosterior += model.calculateAllPriors();
-		if ( -Parameter::randExp(1) < acceptanceRatioForAllMixtures[0])
+        double threshold = -Parameter::randExp(1);
+        /*if ((iteration % thinning) == 0)
+        {
+            my_print("The returned logLikelihood Ratio is: %\n", acceptanceRatioForAllMixtures[0]);
+            my_print("The Returned Threshhold is: %\n", threshold);
+        }*/
+
+		if (threshold < acceptanceRatioForAllMixtures[0] && std::isfinite(acceptanceRatioForAllMixtures[0]))
 		{
 			// moves proposed codon specific parameters to current codon specific parameters
 			posterior = acceptanceRatioForAllMixtures[4]; //unassigned will be 0
-			model.updateCodonSpecificParameter(grouping); 
+			model.updateCodonSpecificParameter(grouping);
 			if ((iteration % thinning) == 0)
 			{
 				likelihoodTrace[(iteration / thinning)] = acceptanceRatioForAllMixtures[2];//will be 0
@@ -495,7 +504,7 @@ void MCMCAlgorithm::run(Genome& genome, Model& model, unsigned numCores, unsigne
             //TODO:Probably do a nan check
 			if ((iteration % adaptiveWidth) == 0u)
 				model.adaptHyperParameterProposalWidths(adaptiveWidth, iteration <= stepsToAdapt);
-   
+
 		}
 		// update expression level values
 		if (estimateSynthesisRate || estimateMixtureAssignment)
@@ -514,7 +523,7 @@ void MCMCAlgorithm::run(Genome& genome, Model& model, unsigned numCores, unsigne
 			}
 			if ((iteration % adaptiveWidth) == 0u)
 				model.adaptSynthesisRateProposalWidth(adaptiveWidth, iteration <= stepsToAdapt);
-      
+
   		}
 
 

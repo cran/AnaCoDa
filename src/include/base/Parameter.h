@@ -159,7 +159,7 @@ class Parameter {
 			unsigned paramType, bool unbiased, bool withoutReference = true);
 	        std::vector<double> getCodonSpecificQuantile(unsigned mixtureElement, unsigned samples, std::string &codon,
 			unsigned paramType, std::vector<double> probs, bool withoutReference);
-		std::vector<double> getExpressionQuantile(unsigned samples, unsigned geneIndex, 
+		std::vector<double> getExpressionQuantile(unsigned samples, unsigned geneIndex,
 			std::vector<double> probs, bool log_scale = false);
 		std::vector<double> calculateQuantile(std::vector<float> &parameterTrace, unsigned samples, std::vector<double> probs, bool log_scale=false);
 		unsigned getEstimatedMixtureAssignment(unsigned samples, unsigned geneIndex);
@@ -269,7 +269,7 @@ class Parameter {
 		std::vector<unsigned> numAcceptForCodonSpecificParameters;
 		std::string mutationSelectionState; //TODO: Probably needs to be renamed
 
-        //<Alpha or Lambda or Mutation or Selection < Mixture < Codon >>> 
+        //<Alpha or Lambda or Mutation or Selection < Mixture < Codon >>>
 		std::vector<std::vector<std::vector<double>>> proposedCodonSpecificParameter;
 		std::vector<std::vector<std::vector<double>>> currentCodonSpecificParameter;
 
@@ -286,6 +286,7 @@ class Parameter {
 		std::vector<double> std_csp;
 
 
+        //Unknown indexing hoping (mixture) then gene
 		std::vector<std::vector<double>> proposedSynthesisRateLevel;
 		std::vector<std::vector<double>> currentSynthesisRateLevel;
 		std::vector<std::vector<unsigned>> numAcceptForSynthesisRate;

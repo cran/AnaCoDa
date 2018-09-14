@@ -102,14 +102,15 @@ class PAModel: public Model
 		virtual void updateAllHyperParameter();
 		virtual void updateHyperParameter(unsigned hp);
 
+
 		virtual void simulateGenome(Genome &genome); // Depends on RFPCountColumn
 		virtual void printHyperParameters();
+		virtual void printCodonSpecificParameters();
 		PAParameter* getParameter();
 		void setParameter(PAParameter &_parameter);
 		virtual double calculateAllPriors();
 		virtual double getParameterForCategory(unsigned category, unsigned param, std::string codon, bool proposal);
 
-	protected:
 };
 
 #endif // PAModel_H

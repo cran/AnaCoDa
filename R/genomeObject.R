@@ -12,6 +12,8 @@
 #' @param fasta A boolean value which decides whether to initialize with a
 #'  fasta file or an RFPData file. (TRUE for fasta, FALSE for RFPData)
 #' 
+#' @param simulated boolean to determine if the data should be treated as a simulated data set (Default = FALSE).
+#' 
 #' @param match.expression.by.id If TRUE (default), observed expression values will be assigned by matching sequence identifier.
 #' If FALSE, observed expression values will be assigned by order.
 #' 
@@ -36,7 +38,8 @@
 #' genome <- initializeGenomeObject(file = genome_file)
 #' genome <- initializeGenomeObject(file = genes_file, genome = genome, append = TRUE)   
 #' 
-initializeGenomeObject <- function(file, genome=NULL, observed.expression.file=NULL, fasta=TRUE, match.expression.by.id=TRUE, append=FALSE) {
+initializeGenomeObject <- function(file, genome=NULL, observed.expression.file=NULL, fasta=TRUE, simulated = FALSE, 
+                                   match.expression.by.id=TRUE, append=FALSE) {
   if (is.null(genome)){ 
     genome <- new(Genome)
   }
@@ -44,7 +47,11 @@ initializeGenomeObject <- function(file, genome=NULL, observed.expression.file=N
   if (fasta == TRUE) {
     genome$readFasta(file, append)
   } else {
-    genome$readRFPData(file, append)
+    if (simulated == TRUE){
+        genome$readSimRFPData(file)
+    } else{
+        genome$readRFPData(file, append)
+    }
   }
   if(!is.null(observed.expression.file)) {
     genome$readObservedPhiValues(observed.expression.file, match.expression.by.id)
@@ -53,14 +60,13 @@ initializeGenomeObject <- function(file, genome=NULL, observed.expression.file=N
 }
 
 
-#' Get Codon Counts For Each Amino Acid 
+#' Get Codon Counts For all Amino Acids
 #' 
-#' @param aa A one character representation of an amino acid.
 #' 
 #' @param genome A genome object from which the counts of each
 #' codon can be obtained.
 #'  
-#' @return Returns a matrix storing the codonCounts for the given amino acid. 
+#' @return Returns a data.frame storing the codon counts for each amino acid. 
 #' 
 #' @description provides the codon counts for a fiven amino acid across all genes
 #' 
@@ -73,9 +79,41 @@ initializeGenomeObject <- function(file, genome=NULL, observed.expression.file=N
 #'  
 #' ## reading genome
 #' genome <- initializeGenomeObject(file = genome_file)
-#' countsForA <- getCodonCountsForAA("A", genome)
+#' counts <- getCodonCounts(genome)
 #' 
-#' counts <- lapply(X = c("A", "C"), FUN = getCodonCountsForAA, genome = genome)
+getCodonCounts <- function(genome){
+  codons <- codons()
+  ORF <- getNames(genome)
+  codonCounts <- lapply(codons, function(codon) {
+      codonCounts <- genome$getCodonCountsPerGene(codon)
+  })
+  codonCounts <- do.call("cbind", codonCounts)
+  colnames(codonCounts) <- codons
+  ORF <- cbind(ORF, codonCounts)
+  return(as.data.frame(ORF))
+}
+
+#' Get Codon Counts For a specific Amino Acid
+#' 
+#' @param aa One letter code of the amino acid for which the codon counts should be returned
+#' 
+#' @param genome A genome object from which the counts of each
+#' codon can be obtained.
+#'  
+#' @return Returns a data.frame storing the codon counts for the specified amino acid. 
+#' 
+#' @description provides the codon counts for a fiven amino acid across all genes
+#' 
+#' @details The returned matrix containes a row for each gene and a coloumn 
+#' for each synonymous codon of \code{aa}.
+#' 
+#' @examples 
+#' 
+#' genome_file <- system.file("extdata", "genome.fasta", package = "AnaCoDa")
+#'  
+#' ## reading genome
+#' genome <- initializeGenomeObject(file = genome_file)
+#' counts <- getCodonCountsForAA("A", genome)
 #' 
 getCodonCountsForAA <- function(aa, genome){
   # get codon count for aa
@@ -88,6 +126,54 @@ getCodonCountsForAA <- function(aa, genome){
 }
 
 
+
+#' calculates the synonymous codon usage order (SCUO) 
+#' 
+#' \code{calculateSCUO} calulates the SCUO value for each gene in genome
+#' 
+#' @param genome A genome object initialized with \code{\link{initializeGenomeObject}}.
+#' 
+#' @return returns the SCUO value for each gene in genome
+#' 
+#' @examples 
+#' 
+#' genome_file <- system.file("extdata", "genome.fasta", package = "AnaCoDa")
+#'  
+#' ## reading genome
+#' genome <- initializeGenomeObject(file = genome_file)
+#' scuo <- calculateSCUO(genome)
+#' 
+calculateSCUO <- function(genome)
+{
+  aas <- aminoAcids()
+  genes <- genome$getGenes(F)
+  scuo.values <- data.frame(ORF=getNames(genome), SCUO=rep(NA, length(genome)))
+  for(i in 1:length(genes))
+  {
+    g <- genes[[i]]
+    total.aa.count <- g$length()/3
+    
+    scuo.per.aa <- unlist(lapply(X = aas, FUN = function(aa)
+    {
+      codon <- AAToCodon(aa = aa, focal = F)
+      num.codons <- length(codon)
+      aa.count <- g$getAACount(aa)
+      if(aa.count == 0) return(0)
+      
+      codon.count <- unlist(lapply(codon, FUN = function(c){return(g$getCodonCount(c))}))
+      codon.propotions <- codon.count / aa.count
+      aa.entropy <- sum(codon.propotions * log(codon.propotions))
+      
+      max.entropy <- -log(1/num.codons)
+      norm.entropy.diff <- (max.entropy - aa.entropy) / max.entropy
+      
+      comp.ratio <- aa.count / total.aa.count
+      scuo.aa <- comp.ratio * norm.entropy.diff
+      return(scuo.aa)
+    }))
+    scuo.values[i] <- sum(scuo.per.aa)
+  }
+}
 
 #' Length of Genome
 #' 
@@ -235,7 +321,7 @@ getObservedSynthesisRateSet <- function(genome, simulated = FALSE)
 #' based on a reference genome.
 #' 
 #' @param referenceGenome A genome object initialized with \code{\link{initializeGenomeObject}}.
-#' 
+#' @param default.weight Set default weight for any codon not observed in the reference genome
 #' @return Returns a named vector with the CAI weights for each codon
 #' 
 #' @examples 
@@ -247,7 +333,7 @@ getObservedSynthesisRateSet <- function(genome, simulated = FALSE)
 #' 
 #' wi <- getCAIweights(referenceGenome)
 #' 
-getCAIweights <- function(referenceGenome)
+getCAIweights <- function(referenceGenome,default.weight=0.5)
 {
   aa.vec <- aminoAcids()
   aa.vec <- aa.vec[-length(aa.vec)]
@@ -268,6 +354,7 @@ getCAIweights <- function(referenceGenome)
   
   wi.vec <- unlist(wi.list)
   names(wi.vec) <- codon.names
+  wi.vec[wi.vec == 0.0] <- default.weight
   return(wi.vec)
 }
 
@@ -281,13 +368,19 @@ calcCAI <- function(gene, wi)
   seq <- paste(seq[c(T,F,F)], seq[c(F,T,F)], seq[c(F,F,T)], sep="")
   codon.length <- length(seq)
   
-  CAI <- 1
+  CAI <- 0
   for(s in seq)
   {
-    if(is.na(wi[s])) next
-    CAI <- CAI * wi[s]
+    ## Sharp and Li reccommend not counting Methionine and Tryptophan for CAI. Also skip stop codons
+    if(is.na(wi[s]) || s == "ATG" || s == "TGG" || s == "TAG" || s=="TAA" || s=="TGA") 
+    {
+      codon.length <- codon.length - 1
+      next
+    }
+    ## Calculate on log-scale to avoid potential numerical issues
+    CAI <- CAI + log(wi[s])
   }
-  CAI <- CAI^(1/codon.length)
+  CAI <- exp((1/codon.length)*CAI)
   return(CAI)
 }
 
@@ -303,6 +396,7 @@ calcCAI <- function(gene, wi)
 #' @param testGenome A genome object initialized with \code{\link{initializeGenomeObject}}.
 #' The genome for which the CAI is supposed to be calculated
 #' 
+#' @param default.weight Default weight to use if codon is missing from referenceGenome
 #' @return Returns a named vector with the CAI for each gene
 #' 
 #' @examples 
@@ -316,10 +410,10 @@ calcCAI <- function(gene, wi)
 #'
 #' cai <- getCAI(referenceGenome, testGenome)
 #' 
-getCAI <- function(referenceGenome, testGenome)
+getCAI <- function(referenceGenome, testGenome,default.weight=0.5)
 {
   genes <- testGenome$getGenes(FALSE)
-  wi <- getCAIweights(referenceGenome)
+  wi <- getCAIweights(referenceGenome,default.weight)
   CAI <- unlist(lapply(genes, calcCAI, wi))
   names(CAI) <- getNames(testGenome, FALSE)
   return(CAI)  

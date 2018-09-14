@@ -12,8 +12,8 @@ using namespace Rcpp;
 //--------------------------------------------------//
 //----------- Constructors & Destructors -----------//
 //--------------------------------------------------//
- 
- 
+
+
 Trace::Trace()
 {
 	categories = 0;
@@ -49,7 +49,7 @@ void Trace::initializeSharedTraces(unsigned samples, unsigned num_genes, unsigne
 	my_print("maxGrouping: %\n", maxGrouping);
 
 	//numSelectionCategories always == numSynthesisRateCategories, so only one is passed in for convenience
-	
+
 	initStdDevSynthesisRateTrace(numSelectionCategories, samples);
 	initSynthesisRateAcceptanceRateTrace(num_genes, numSelectionCategories);
 	codonSpecificAcceptanceRateTrace.resize(maxGrouping);
@@ -156,6 +156,9 @@ void Trace::initCodonSpecificParameterTrace(unsigned samples, unsigned numCatego
 
 
 
+
+
+
 //----------------------------------//
 //---------- ROC Specific ----------//
 //----------------------------------//
@@ -201,11 +204,12 @@ void Trace::initializePATrace(unsigned samples, unsigned num_genes, unsigned num
 	std::vector<unsigned> init_mix_assign)
 {
 	initializeSharedTraces(samples, num_genes, numLambdaPrimeCategories, numMixtures,
-		_categories, maxGrouping,init_phi,init_mix_assign);
+		_categories, maxGrouping, init_phi, init_mix_assign);
 
 	// See Note 1) above.
 	initCodonSpecificParameterTrace(samples, numAlphaCategories,  numParam, 0u); // alp
 	initCodonSpecificParameterTrace(samples, numLambdaPrimeCategories, numParam, 1u); // lmPri
+
 }
 
 
@@ -258,9 +262,9 @@ void Trace::initializePANSETrace(unsigned samples, unsigned num_genes, unsigned 
 //--------------------------------------//
 
 
-std::vector<double> Trace::getStdDevSynthesisRateTrace(unsigned selectionCategory) 
-{ 
-	return stdDevSynthesisRateTrace[selectionCategory]; 
+std::vector<double> Trace::getStdDevSynthesisRateTrace(unsigned selectionCategory)
+{
+	return stdDevSynthesisRateTrace[selectionCategory];
 }
 
 
@@ -334,7 +338,7 @@ std::vector<float> Trace::getSynthesisRateTraceForGene(unsigned geneIndex)
 
 std::vector<float> Trace::getSynthesisRateTraceByMixtureElementForGene(unsigned mixtureElement, unsigned geneIndex)
 {
-	
+
 
 	unsigned category = getSynthesisRateCategory(mixtureElement);
 	return synthesisRateTrace[category][geneIndex];
@@ -540,7 +544,7 @@ void Trace::updateCodonSpecificParameterTraceForAA(unsigned sample, std::string 
 	}
 	/*
 	switch (paramType) {
-	case 0: 
+	case 0:
 		for (unsigned category = 0; category < codonSpecificParameterTraceOne.size(); category++)
 		{
 			for (unsigned i = aaStart; i < aaEnd; i++)
@@ -585,9 +589,8 @@ void Trace::updateObservedSynthesisNoiseTrace(unsigned index, unsigned sample, d
 
 
 //-------------------------------------//
-//---------- RFP Specific -------------//
+//---------- PA Specific -------------//
 //-------------------------------------//
-
 
 void Trace::updateCodonSpecificParameterTraceForCodon(unsigned sample, std::string codon,
 	std::vector<std::vector<double>> &curParam, unsigned paramType)
@@ -751,7 +754,6 @@ std::vector<float> Trace::getCodonSpecificParameterTraceByMixtureElementForCodon
 	return RV;
 }
 
-
 std::vector<std::vector<double>> Trace::getSynthesisOffsetTraceR()
 {
 	return synthesisOffsetTrace;
@@ -815,4 +817,5 @@ bool Trace::checkIndex(unsigned index, unsigned lowerbound, unsigned upperbound)
 
 	return check;
 }
+
 #endif
