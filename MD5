@@ -1,11 +1,11 @@
-5552d50606d66760eea39b5fb093d889 *DESCRIPTION
+d0458aff06e143af407ff47bd2676df7 *DESCRIPTION
 ab19fd7502b33bb39e08429d4998e710 *NAMESPACE
 24fb96c8d286e5dc3bc0af5a1ed03236 *R/colorSchemes.R
 405fa75f4b371381755b5c7600e8e606 *R/genomeObject.R
-145902758c5510e9d075e491cce81ddc *R/mcmcObject.R
-6edc1a290227d4967b46e2906e641490 *R/modelObject.R
+f5b4994c3db43502c665d903b1062e7a *R/mcmcObject.R
+5c0b33ff63712b5ec869ec4b65bd16c6 *R/modelObject.R
 2f223172b92d63243e658d123d461e54 *R/onloadPackage.R
-a370c626813cb6b51820805438bd0818 *R/parameterObject.R
+662a912ce76a52fe7e71214d4dacdcda *R/parameterObject.R
 49cf22e0098544a03600739a179a54f6 *R/plotMCMCAlgorithmObject.R
 ae16360c90b10785aac1f36c1ec3bf71 *R/plotModelObject.R
 a45d2ba7b9c2ecf8826303bd872deec1 *R/plotParameterObject.R

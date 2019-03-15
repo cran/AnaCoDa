@@ -2,7 +2,7 @@ Package: AnaCoDa
 Type: Package
 Title: Analysis of Codon Data under Stationarity using a Bayesian
         Framework
-Version: 0.1.2.2
+Version: 0.1.2.3
 Date: 2019-02-28
 Authors@R: c(person("Cedric", "Landerer", role = c("aut", "cre"), email  = "cedric.landerer@gmail.com"), 
 	person("Gabriel", "Hanas", role = "ctb"), 
@@ -38,11 +38,11 @@ LinkingTo: Rcpp
 LazyLoad: yes
 LazyData: yes
 RoxygenNote: 6.0.1
-Packaged: 2019-03-04 07:37:44 UTC; landerer
+Packaged: 2019-03-15 10:41:49 UTC; landerer
 Author: Cedric Landerer [aut, cre],
   Gabriel Hanas [ctb],
   Jeremy Rogers [ctb],
   Alex Cope [ctb],
   Denizhan Pak [ctb]
 Repository: CRAN
-Date/Publication: 2019-03-04 09:20:04 UTC
+Date/Publication: 2019-03-15 17:18:50 UTC
