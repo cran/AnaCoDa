@@ -31,7 +31,7 @@
 #'                                  observed.expression.file = expression_file)
 #' sphi_init <- c(1,1)
 #' numMixtures <- 2
-#' geneAssignment <- c(rep(1, length(genome)/2), rep(2, length(genome)/2))
+#' geneAssignment <- c(rep(1,floor(length(genome)/2)),rep(2,ceiling(length(genome)/2)))
 #' parameter <- initializeParameterObject(genome = genome, sphi = sphi_init, 
 #'                                        num.mixtures = numMixtures, 
 #'                                        gene.assignment = geneAssignment, 
