@@ -1,23 +1,23 @@
-## ----setup, include = FALSE----------------------------------------------
+## ----setup, include = FALSE---------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 
-## ---- echo = TRUE, eval = FALSE------------------------------------------
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
 #  genome <- initializeGenomeObject(file = "genome.fasta")
 #  parameter <- initializeParameterObject(genome = genome, sphi = 1, num.mixtures = 1, geneAssignment = rep(1, length(genome)))
 #  model <- initializeModelObject(parameter = parameter, model = "ROC")
 #  mcmc <- initializeMCMCObject(samples = 5000, thinning = 10, adaptive.width=50)
 #  runMCMC(mcmc = mcmc, genome = genome, model = model)
 
-## ---- echo = TRUE, eval = FALSE------------------------------------------
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
 #  parameter <- initializeParameterObject(genome = genome, sphi = c(0.5, 2), num.mixtures = 2, geneAssignment = sample.int(2, length(genome), replace = T))
 
-## ---- echo = TRUE, eval = FALSE------------------------------------------
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
 #  genome <- initializeGenomeObject(file = "genome.fasta", observed.expression.file = "synthesis_values.csv")
 
-## ---- echo = TRUE, eval = FALSE------------------------------------------
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
 #  # One case of observed data
 #  sepsilon <- 0.1
 #  # Two cases of observed data
@@ -28,42 +28,67 @@ knitr::opts_chunk$set(
 #  
 #  parameter <- initializeParameterObject(genome = genome, sphi = 1, num.mixtures = 1, geneAssignment = rep(1, length(genome)), init.sepsilon = sepsilon)
 
-## ---- echo = TRUE, eval = FALSE------------------------------------------
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
 #  model <- initializeModelObject(parameter = parameter, model = "ROC",  fix.observation.noise = TRUE)
 
-## ---- echo = TRUE, eval = FALSE------------------------------------------
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
 #  genome <- initializeGenomeObject(file = "genome.fasta")
 #  parameter <- initializeParameterObject(genome = genome, sphi = 1, num.mixtures = 1, geneAssignment = rep(1, length(genome)))
 #  model <- initializeModelObject(parameter = parameter, model = "ROC")
 
-## ---- echo = TRUE, eval = FALSE------------------------------------------
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
 #  mcmc <- initializeMCMCObject(samples, thinning=1, adaptive.width=100, est.expression=FALSE, est.csp=TRUE, est.hyper=TRUE, est.mix=TRUE)
 
-## ---- echo = TRUE, eval = FALSE------------------------------------------
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
 #  mcmc <- initializeMCMCObject(samples, thinning=1, adaptive.width=100, est.expression=TRUE, est.csp=FALSE, est.hyper=TRUE, est.mix=TRUE)
 
-## ---- echo = TRUE, eval = FALSE------------------------------------------
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
 #  mcmc <- initializeMCMCObject(samples, thinning=1, adaptive.width=100, est.expression=TRUE, est.csp=TRUE, est.hyper=FALSE, est.mix=TRUE)
 
-## ---- echo = TRUE, eval = FALSE------------------------------------------
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
 #  mcmc <- initializeMCMCObject(samples, thinning=1, adaptive.width=100, est.expression=TRUE, est.csp=TRUE, est.hyper=TRUE, est.mix=FALSE)
 
-## ---- echo = TRUE, eval = FALSE------------------------------------------
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
+#  genome <- initializeGenomeObject(file = "genome.fasta")
+#  parameter <- initializeParameterObject(genome = genome, sphi = 1, num.mixtures = 1, geneAssignment = rep(1, length(genome)))
+#  parameter$fixDM()
+#  parameter$fixDEta()
+
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
+#  genome <- initializeGenomeObject(file = "genome.fasta")
+#  parameter <- initializeParameterObject(genome = genome, sphi = 1, num.mixtures = 1, geneAssignment = rep(1, length(genome)))
+#  
+#  fix_dm <- TRUE
+#  fix_deta <- FALSE
+#  
+#  parameter$initMutationCategories(dM.file,1,fix_dm)
+#  parameter$initSelectionCategories(dEta.file,1,fix_deta)
+#  
+#  parameter <- initializeParameterObject(genome = genome, sphi = c(1,1), num.mixtures = 2, geneAssignment = sample.int(2, length(genome), replace = T), mixture.definition = "mutationShared")
+#  
+#  fix_dm <- TRUE
+#  fix_deta <- FALSE
+#  
+#  parameter$initMutationCategories(dM.file,1,fix_dm)
+#  parameter$initSelectionCategories(dEta.file,2,fix_deta)
+#  
+
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
 #  parameter <- initializeParameterObject(genome = genome, sphi = c(0.5, 2), num.mixtures = 2
 #                                         , geneAssignment = sample.int(2, length(genome), replace = T),
 #                                         mixture.definition = "allUnique")
 
-## ---- echo = TRUE, eval = FALSE------------------------------------------
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
 #  parameter <- initializeParameterObject(genome = genome, sphi = c(0.5, 2), num.mixtures = 2
 #                                         , geneAssignment = sample.int(2, length(genome), replace = T),
 #                                         mixture.definition = "mutationShared")
 
-## ---- echo = TRUE, eval = FALSE------------------------------------------
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
 #  parameter <- initializeParameterObject(genome = genome, sphi = c(0.5, 2), num.mixtures = 2
 #                                         , geneAssignment = sample.int(2, length(genome), replace = T),
 #                                         mixture.definition = "selectionShared")
 
-## ---- echo = TRUE, eval = FALSE------------------------------------------
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
 #  #     [,1] [,2]
 #  #[1,]    1    1
 #  #[2,]    1    2
@@ -73,41 +98,65 @@ knitr::opts_chunk$set(
 #                                         geneAssignment = sample.int(3, length(genome), replace = T),
 #                                         mixture.definition.matrix = def.matrix)
 
-## ---- echo = TRUE, eval = FALSE------------------------------------------
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
 #  #     [,1] [,2]
 #  #[1,]    1    1
 #  #[2,]    2    2
 #  #[3,]    3    3
 #  def.matrix <- matrix(c(1,2,3,1,2,3), ncol=2)
 
-## ---- echo = TRUE, eval = FALSE------------------------------------------
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
 #  #     [,1] [,2]
 #  #[1,]    1    1
 #  #[2,]    2    1
 #  #[3,]    1    2
 #  def.matrix <- matrix(c(1,2,1,1,1,2), ncol=2)
 
-## ---- echo = TRUE, eval = FALSE------------------------------------------
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
 #  # writing a restart file every 1000 samples
 #  setRestartSettings(mcmc, "restart_file", 1000, write.multiple=TRUE)
 #  # writing a restart file every 1000 samples but overwriting it every time
 #  setRestartSettings(mcmc, "restart_file", 1000, write.multiple=FALSE)
 
-## ---- echo = TRUE, eval = FALSE------------------------------------------
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
 #  initializeParameterObject(init.with.restart.file = "restart_file.rst")
 
-## ---- echo = TRUE, eval = FALSE------------------------------------------
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
 #  #save objects after a run
 #  runMCMC(mcmc = mcmc, genome = genome, model = model)
 #  writeParameterObject(parameter = parameter, file = "parameter_out.Rda")
 #  writeMCMCObject(mcmc = mcmc, file = "mcmc_out.Rda")
 
-## ---- echo = TRUE, eval = FALSE------------------------------------------
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
 #  #save objects after a run
 #  parameter <- loadParameterObject(file = "parameter_out.Rda")
 #  mcmc <- loadMCMCObject(file = "mcmc_out.Rda")
 
-## ---- echo = TRUE, eval = FALSE------------------------------------------
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
+#  parameter <- initializeParameterObject(genome = genome, sphi = 1, num.mixtures = 1, geneAssignment = rep(1, length(genome)),model="FONSE",init.initiation.cost=a1)
+#  
+#  model <- initializeModelObject(parameter,"FONSE")
+#  
+
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
+#  
+#  trace <- parameter$getTraceObject()
+#  
+#  plot(trace,what="InitiationCost")
+#  
+#  trace_a1 <- trace$getInitiationCostTrace()
+#  mean_a1 <- mean(trace_a1)
+#  sd_a1 <- sd(trace_a1)
+#  ci_a1 <- quantile(trace_a1,probs = c(0.025,0.975))
+#  
+
+## ----echo=TRUE,eval=FALSE-----------------------------------------------------
+#  
+#  genome.pa <- initializeGenomeObject("rfp.csv",fasta=FALSE,positional=FALSE)
+#  genome.panse <- initializeGenomeObject("rfp.csv",fasta=FALSE,positional=TRUE)
+#  
+
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
 #  csp_mat <- getCSPEstimates(parameter = parameter, CSP="Mutation", mixture = 1, samples = 1000)
 #  head(csp_mat)
 #  #  AA Codon  Posterior     0.025%     0.975%
@@ -120,12 +169,12 @@ knitr::opts_chunk$set(
 #  
 #  getCSPEstimates(parameter = parameter, filename = "mutation.csv", CSP="Mutation", mixture = 1, samples = 1000)
 
-## ---- echo = TRUE, eval = FALSE------------------------------------------
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
 #  phi_mat <- getExpressionEstimates(parameter = parameter,
 #                                    gene.index = 1:length(genome),
 #                                    samples = 1000)
 #  head(phi_mat)
-#  #           PHI  log10.PHI    Std.Error log10.Std.Error      0.025     0.975 log10.0.025 log10.0.975
+#  #           Mean  Mean.log10      Std.Dev   log10.Std.Dev      0.025     0.975 log10.0.025 log10.0.975
 #  #[1,] 0.2729446 -0.6188447 0.0001261525    2.362358e-04 0.07331819 0.5455295 -1.13478830 -0.26319141
 #  #[2,] 1.4221716  0.1498953 0.0001669425    5.194123e-05 1.09593642 1.7562065  0.03978491  0.24457557
 #  #[3,] 0.7459888 -0.1512764 0.0002313539    1.529267e-04 0.31559618 1.2198282 -0.50086958  0.08629407
@@ -133,13 +182,13 @@ knitr::opts_chunk$set(
 #  #[5,] 1.6316901  0.2098120 0.0001846631    4.986347e-05 1.28410352 2.0035207  0.10860000  0.30179215
 #  #[6,] 0.6179711 -0.2286806 0.0001744928    1.374863e-04 0.28478950 0.9683327 -0.54550116 -0.01397541
 
-## ---- echo = TRUE, eval = FALSE------------------------------------------
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
 #  # sampling 100 genes at random
 #  phi_mat <- getExpressionEstimates(parameter = parameter,
 #                                    gene.index = sample(1:length(genome), 100),
 #                                    samples = 1000)
 
-## ---- echo = TRUE, eval = FALSE------------------------------------------
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
 #  selection.coefficients <- getSelectionCoefficients(genome = genome,
 #                                                     parameter = parameter,
 #                                                     samples = 1000)
@@ -152,7 +201,7 @@ knitr::opts_chunk$set(
 #  #SAKL0A00220g -0.9746002 -0.051980440 -1.2540685   0 -0.6064022   0   0 -0.30442861 ...
 #  #SAKL0A00242g -0.3691110 -0.019686586 -0.4749542   0 -0.2296631   0   0 -0.11529644 ...
 
-## ---- echo = TRUE, eval = FALSE------------------------------------------
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
 #  cai.weights <- getCAIweights(referenceGenome = genome)
 #  head(cai.weights)
 #  #      GCA       GCC       GCG       GCT       TGC       TGT
@@ -169,7 +218,7 @@ knitr::opts_chunk$set(
 #  #SAKL0A00242g 4.500000       NA 2.095890 2.000000 1.408163 3.734043 ...
 #  
 
-## ---- echo = TRUE, eval = FALSE------------------------------------------
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
 #  selection.coefficients <- getSelectionCoefficients(genome = genome,
 #                                                     parameter = parameter,
 #                                                     samples = 1000)
@@ -185,21 +234,21 @@ knitr::opts_chunk$set(
 #  axis(1, lwd = 3, cex.axis = 1.2)
 #  axis(2, lwd = 3, cex.axis = 1.2)
 
-## ---- echo = TRUE, eval = FALSE------------------------------------------
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
 #  trace <- getTrace(parameter)
 #  plot(x = trace, what = "Mutation", mixture = 1)
 
-## ---- echo = TRUE, eval = FALSE------------------------------------------
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
 #  trace <- parameter$getTraceObject()
 #  plot(x = trace, what = "Expression", mixture = 1, geneIndex = 669)
 
-## ---- echo = TRUE, eval = FALSE------------------------------------------
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
 #  plot(mcmc, what = "LogPosterior", zoom.window = c(9000, 10000))
 
-## ---- echo = TRUE, eval = FALSE------------------------------------------
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
 #  # use the last 500 samples from mixture 1 for posterior estimate.
 #  plot(x = model, genome = genome, samples = 500, mixture = 1)
 
-## ---- echo = TRUE, eval = FALSE------------------------------------------
+## ---- echo = TRUE, eval = FALSE-----------------------------------------------
 #  plot(parameter, what = "Selection", samples = 500)
 

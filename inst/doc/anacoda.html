@@ -341,6 +341,38 @@ This will estimate only gene-set specific parameters, hyperparameters, and the a
 
 <p>We can use these flags to fix parameters in any combination.</p>
 
+<p>For some analyses, it may be useful to keep specific parameter types fixed. Parameter objects have code for keeping some gene-set specific parameters fixed while estimating others. For example, when using a ROC parameter object, fixDM() or fixDEta() can be used to fix mutation bias and selection gene-set specific parameters respectively. </p>
+
+<pre><code class="r">genome &lt;- initializeGenomeObject(file = &quot;genome.fasta&quot;)
+parameter &lt;- initializeParameterObject(genome = genome, sphi = 1, num.mixtures = 1, geneAssignment = rep(1, length(genome)))
+parameter$fixDM()
+parameter$fixDEta()
+</code></pre>
+
+<p>###Initializing Starting Parameters
+If you&#39;re choosing to fix certain parameters, then it is a good idea to set these parameters to good values based on empirical data or previous analyses. There are many ways to initialize these values. Most hyperparameters and gene-specific parameters can actually be initialized when initializing the Parameter object, as demonstrated with \(s_\phi\). Protein production rates \(\phi\) can also be initialized in the Parameter object using the argument initial.expression.values, which takes a vector (must equal the length of the genome) of values to use as \(\phi\). Note that these should be in the same order as the genes in the Genome object.</p>
+
+<p>Gene-set specific parameters are initialized using functions after the Parameter object has been initialized. For ROC and FONSE, initMutationCategories and initSelectionCategories takes in a vector of file names (must equal the number of corresponding categories), the number of categories for that gene-set specific parameter (see Combining various gene-set specific parameters to a gene-set description), and an optional argument for keeping a parameter fixed at these values (an alternative to fixDM() and fixDEta). Note that if you use a mixture.definition value (see Combining various gene-set specific parameters to a gene-set description) such as &ldquo;mutationShared&rdquo;, then there would be only one mutation category, but multiple selection categories.   </p>
+
+<pre><code class="r">genome &lt;- initializeGenomeObject(file = &quot;genome.fasta&quot;)
+parameter &lt;- initializeParameterObject(genome = genome, sphi = 1, num.mixtures = 1, geneAssignment = rep(1, length(genome)))
+
+fix_dm &lt;- TRUE
+fix_deta &lt;- FALSE
+
+parameter$initMutationCategories(dM.file,1,fix_dm)
+parameter$initSelectionCategories(dEta.file,1,fix_deta)
+
+parameter &lt;- initializeParameterObject(genome = genome, sphi = c(1,1), num.mixtures = 2, geneAssignment = sample.int(2, length(genome), replace = T), mixture.definition = &quot;mutationShared&quot;)
+
+fix_dm &lt;- TRUE
+fix_deta &lt;- FALSE
+
+parameter$initMutationCategories(dM.file,1,fix_dm)
+parameter$initSelectionCategories(dEta.file,2,fix_deta)
+
+</code></pre>
+
 <h3>Combining various gene-set specific parameters to a gene-set description.</h3>
 
 <p>We distinguish between three simple cases of gene-set descriptions, and the ability to customize the parameter mapping.
@@ -476,9 +508,39 @@ YAL003W,10.45,NA,...,9.564
 YAL005C,0.556,0.957,...,0.758
 </code></pre>
 
-<h3>Ribosome FootPrinting counts</h3>
+<h2>Estimating Nonsense Error Probabilities from codon data.</h2>
 
-<p>Ribosome Foot-Printing (RFP) counts are provided in a csv file format.
+<p>NOTE: The model described here is unpublished and currently in beta testing. Please use with caution. 
+A common observation is tendency for inefficient codons to be more frequent at the 5&#39;-ends of transcripts. One explanation for this is selection against ribosome drop-off, or nonsense errors, during translation. It is expected that nonsense errors are less costly towards the beginning of translation. AnaCoDa contains a model, the First Order Nonsense Error (FONSE) model, for estimating codon-specific nonsense error probabilities from codon count data. This models functionality is very similar to ROC. The primary difference for fitting a FONSE model instead of a ROC model to genomic data is specifying FONSE when initializing the Parameter and Model objects.</p>
+
+<pre><code class="r">parameter &lt;- initializeParameterObject(genome = genome, sphi = 1, num.mixtures = 1, geneAssignment = rep(1, length(genome)),model=&quot;FONSE&quot;,init.initiation.cost=a1)
+
+model &lt;- initializeModelObject(parameter,&quot;FONSE&quot;)
+
+</code></pre>
+
+<p>FONSE also estimates the indirect cost of translation initiation. This value can be initialized with the parameter object with init.initiation.cost. After the MCMC has run, estimates for the initiation cost can be pulled from the trace object. </p>
+
+<pre><code class="r">
+trace &lt;- parameter$getTraceObject()
+
+plot(trace,what=&quot;InitiationCost&quot;)
+
+trace_a1 &lt;- trace$getInitiationCostTrace()
+mean_a1 &lt;- mean(trace_a1)
+sd_a1 &lt;- sd(trace_a1)
+ci_a1 &lt;- quantile(trace_a1,probs = c(0.025,0.975))
+
+</code></pre>
+
+<h3>Application of AnaCoDa to Ribo-Seq data</h3>
+
+<p>NOTE: The models described here are unpublished and currently in beta testing. Please use with caution. 
+Ribosome footprinting, or Ribo-Seq, is a relatively new technology which has allowed researchers to explore the translatome (mRNA being actively translated in the cell).
+The current version of AnaCoDa contains two models for estimating parameters from RFP data: The Pausing Model (PA) and the Pausing and Nonsense Error (PANSE) model.
+Although provided with the initial release of AnaCoDa, these models were still in beta testing. </p>
+
+<p>Unlike ROC and FONSE, the Genome object for PA/PANSE takes in Ribosome Foot-Printing (RFP) counts in a csv file format.
 The first line is expected to be a header describing each column.
 The columns are expected in the following order gene id, position, codon, rfpcount.
 Each row corresponds to a single codon with an associated number of ribosome footprints.</p>
@@ -488,6 +550,12 @@ YBR177C, 0, ATA, 8
 YBR177C, 1, CGG, 1
 YBR177C, 2, GTT, 8
 YBR177C, 3, CGC, 1
+</code></pre>
+
+<pre><code class="r">
+genome.pa &lt;- initializeGenomeObject(&quot;rfp.csv&quot;,fasta=FALSE,positional=FALSE)
+genome.panse &lt;- initializeGenomeObject(&quot;rfp.csv&quot;,fasta=FALSE,positional=TRUE)
+
 </code></pre>
 
 <h2>Analyzing and Visualizating results</h2>
@@ -520,7 +588,7 @@ In the case below we ask to get the gene specific parameters for all genes, and 
                                   gene.index = 1:length(genome),
                                   samples = 1000)
 head(phi_mat)
-#           PHI  log10.PHI    Std.Error log10.Std.Error      0.025     0.975 log10.0.025 log10.0.975
+#           Mean  Mean.log10      Std.Dev   log10.Std.Dev      0.025     0.975 log10.0.025 log10.0.975
 #[1,] 0.2729446 -0.6188447 0.0001261525    2.362358e-04 0.07331819 0.5455295 -1.13478830 -0.26319141
 #[2,] 1.4221716  0.1498953 0.0001669425    5.194123e-05 1.09593642 1.7562065  0.03978491  0.24457557
 #[3,] 0.7459888 -0.1512764 0.0002313539    1.529267e-04 0.31559618 1.2198282 -0.50086958  0.08629407
